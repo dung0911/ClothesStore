@@ -2,6 +2,7 @@ package com.shoesstore.shoesstore.controller;
 
 import com.shoesstore.shoesstore.entity.Categories;
 import com.shoesstore.shoesstore.entity.Products;
+import com.shoesstore.shoesstore.repository.CategoryRepository;
 import com.shoesstore.shoesstore.repository.ProductRepository;
 import com.shoesstore.shoesstore.service.impl.CategoryService;
 import com.shoesstore.shoesstore.service.impl.ProductService;
@@ -21,6 +22,8 @@ public class ProductController {
     private CategoryService categoryService;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @RequestMapping("/")
     public String index(Model model) {
@@ -32,13 +35,19 @@ public class ProductController {
     @RequestMapping("/shop")
     public String shopProduct(@RequestParam(name = "productName", required = false) String searchKeyword, Model model) {
         List<Products> lstProduct;
-        List<Categories> lstCat = categoryService.getAllCategory();
-        System.out.println();
+        List<Categories> lstCat = categoryRepository.findParentCategories();
+
+        for (Categories parentCategory : lstCat) {
+            List<Categories> childCategories = categoryRepository.findChildCategories(parentCategory.getId());
+            parentCategory.setChildren(childCategories);
+        }
+
         if (searchKeyword != null && !searchKeyword.isEmpty()) {
             lstProduct = productRepository.findByProductName(searchKeyword);
         } else {
             lstProduct = productRepository.findAllPro();
         }
+
         model.addAttribute("lstProduct", lstProduct);
         model.addAttribute("lstCat", lstCat);
         return "/Page/Views/Shop/shop";
@@ -53,6 +62,12 @@ public class ProductController {
 
     @RequestMapping("/shop/filter")
     public String handleFilterRequest(@RequestParam("optionId") String optionId, Model model) {
+        List<Categories> lstCat = categoryRepository.findParentCategories();
+
+        for (Categories parentCategory : lstCat) {
+            List<Categories> childCategories = categoryRepository.findChildCategories(parentCategory.getId());
+            parentCategory.setChildren(childCategories);
+        }
         List<Products> lstProduct;
         switch (optionId) {
             case "defaultSorting":
@@ -77,6 +92,7 @@ public class ProductController {
                 lstProduct = productRepository.findAllPro();
                 break;
         }
+        model.addAttribute("lstCat", lstCat);
         model.addAttribute("lstProduct", lstProduct);
 
         return "/Page/Views/Shop/shop";

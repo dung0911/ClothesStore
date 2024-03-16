@@ -14,4 +14,7 @@ public interface ProductRepository extends CrudRepository<Products, Integer> {
     List<Products> findAllProAsc();
 
     List<Products> findAllProDesc();
+
+    @Query(name = "Products.findProductByCat")
+    List<Products> findProductByCat(int catID);
 }

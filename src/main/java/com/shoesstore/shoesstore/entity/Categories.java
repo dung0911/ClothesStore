@@ -3,8 +3,13 @@ package com.shoesstore.shoesstore.entity;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "Categories.findParentCategories", query = "SELECT c FROM Categories c WHERE c.parent IS NULL"),
+        @NamedQuery(name = "Categories.findChildCategories", query = "SELECT c FROM Categories c WHERE c.parent.id = :parentId")
+})
 public class Categories {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -25,9 +30,17 @@ public class Categories {
     @Basic
     @Column(name = "is_parent", nullable = false)
     private byte isParent;
-    @Basic
-    @Column(name = "parent_id", nullable = true)
-    private Object parentId;
+//    @Basic
+//    @Column(name = "parent_id", nullable = true)
+//    private Object parentId;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id", referencedColumnName = "id")
+    private Categories parent;
+
+    @OneToMany(mappedBy = "parent")
+    private List<Categories> children;
+
     @Basic
     @Column(name = "added_by", nullable = true)
     private Object addedBy;
@@ -40,6 +53,22 @@ public class Categories {
     @Basic
     @Column(name = "updated_at", nullable = true)
     private Timestamp updatedAt;
+
+    public Categories getParent() {
+        return parent;
+    }
+
+    public void setParent(Categories parent) {
+        this.parent = parent;
+    }
+
+    public List<Categories> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Categories> children) {
+        this.children = children;
+    }
 
     public Categories() {
     }
@@ -90,14 +119,6 @@ public class Categories {
 
     public void setIsParent(byte isParent) {
         this.isParent = isParent;
-    }
-
-    public Object getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Object parentId) {
-        this.parentId = parentId;
     }
 
     public Object getAddedBy() {

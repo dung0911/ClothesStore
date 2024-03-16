@@ -1,6 +1,7 @@
 package com.shoesstore.shoesstore.entity;
 
 import jakarta.persistence.*;
+import jdk.jfr.Name;
 
 import java.sql.Timestamp;
 
@@ -9,7 +10,8 @@ import java.sql.Timestamp;
         @NamedQuery(name = "Products.findAllPro", query = "SELECT o FROM Products o"),
         @NamedQuery(name = "Products.findAllProAsc", query = "SELECT o FROM Products o order by o.title asc"),
         @NamedQuery(name = "Products.findAllProDesc", query = "SELECT o FROM Products o order by o.title desc"),
-        @NamedQuery(name = "Products.findByProductName", query = "SELECT o FROM Products o WHERE o.title IS NULL OR o.title LIKE CONCAT('%', :productName, '%')")
+        @NamedQuery(name = "Products.findByProductName", query = "SELECT o FROM Products o WHERE o.title IS NULL OR o.title LIKE CONCAT('%', :productName, '%')"),
+        @NamedQuery(name = "Products.findProductByCat", query = "SELECT o FROM Products o WHERE o.childCatId = :childCatId")
 })
 public class Products {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
